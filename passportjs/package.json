@@ -1,5 +1,5 @@
 {
-  "name": "barebones",
+  "name": "express-session",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

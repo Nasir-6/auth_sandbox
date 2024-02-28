@@ -21,6 +21,7 @@ app.use(
       // SameSite: "none", // DON'T INCLUDE sameSite: "none" prevents express cookies from being saved unless secure is set - but then need https - which isn't on dev!!!
       // https://stackoverflow.com/questions/76354210/why-is-my-express-session-cookie-being-sent-by-api-but-not-picked-up-in-browser
       // TODO: Some reading - https://web.dev/articles/samesite-cookies-explained
+      // I think default value of sameSite is lax if not set!
       httpOnly: false,
       secure: false,
       maxAge: 1000 * 60 * 60 * 24 * 30,
@@ -68,6 +69,8 @@ app.post("/login", (req, res) => {
 });
 
 // TODO: Add an authorised route to get all info for dashboard
+
+// TODO: Add logout - remove cookie!!
 
 app.listen(3000, function (err) {
   if (err) console.log("Error in server setup");
