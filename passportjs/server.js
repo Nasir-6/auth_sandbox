@@ -20,6 +20,7 @@ app.use(
     cookie: {
       // SameSite: "none", // DON'T INCLUDE sameSite: "none" prevents express cookies from being saved unless secure is set - but then need https - which isn't on dev!!!
       // https://stackoverflow.com/questions/76354210/why-is-my-express-session-cookie-being-sent-by-api-but-not-picked-up-in-browser
+      // TODO: Some reading - https://web.dev/articles/samesite-cookies-explained
       httpOnly: false,
       secure: false,
       maxAge: 1000 * 60 * 60 * 24 * 30,
