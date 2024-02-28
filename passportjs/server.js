@@ -60,10 +60,13 @@ app.post("/login", (req, res) => {
   if (!user)
     res.status(401).send(`No such user exists with email ${req.body.email}`);
 
+  //TODO: Check password is the same
   req.session.email = user.email;
 
   res.send(`Authed as ${user.name}`);
 });
+
+// TODO: Add an authorised route to get all info for dashboard
 
 app.listen(3000, function (err) {
   if (err) console.log("Error in server setup");
