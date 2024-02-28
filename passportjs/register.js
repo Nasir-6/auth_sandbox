@@ -1,5 +1,5 @@
-function submitForm() {
-  console.log("SUBMITTING FORM");
+function register() {
+  console.log("SUBMITTING REGISTER FORM");
   // Collect form data
   const name = document.getElementById("name").value;
   const email = document.getElementById("email").value;
@@ -13,8 +13,10 @@ function submitForm() {
   console.log("reqbody", reqBody);
 
   // Make a POST request using fetch
+  // NOTE: MAKE SURE TO INCLUDE credentials - in every request - so the cookie is stored!!
   fetch("http://127.0.0.1:3000/register", {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },

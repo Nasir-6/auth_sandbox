@@ -1,31 +1,29 @@
-function submitForm() {
-  console.log("SUBMITTING FORM");
+async function login() {
+  console.log("SUBMITTING LOGIN FORM");
   // Collect form data
-  const name = document.getElementById("name").value;
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-
-  // Create a FormData object to send the data
-  const formData = new FormData();
-  formData.append("name", name);
-  formData.append("email", email);
-  formData.append("password", password);
+  const reqBody = {
+    email,
+    password,
+  };
 
   // Make a POST request using fetch
-  fetch("http://127.0.0.1:3000/login", {
+  await fetch("http://127.0.0.1:3000/login", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json", // DONT FORGET THIS to ensure json is sent back!!
     },
-    body: formData,
+    body: JSON.stringify(reqBody),
+    credentials: "include", // DON'T FORGET TO ADD THIS TO BOTH REQUEST and RESPONSE
   })
-    .then((response) => response.json()) // assuming the server responds with JSON
-    .then((data) => {
-      // Handle the response from the server
-      console.log(data);
+    .then(async (response) => {
+      const result = await response.text();
+      document.getElementById("result").textContent = result;
     })
-    .catch((error) => {
-      // Handle any errors that occurred during the fetch
+    .catch(async (error) => {
       console.error("Error:", error);
+      const result = await error.text();
+      document.getElementById("result").textContent = result;
     });
 }
