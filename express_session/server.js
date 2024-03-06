@@ -38,7 +38,7 @@ app.post("/register", async (req, res) => {
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
   if (USERS.has(req.body.email))
-    res.status(400).send("There is a user with this email already");
+    return res.status(400).send("There is a user with this email already");
 
   const user = {
     id: Date.now().toString(),
@@ -51,22 +51,45 @@ app.post("/register", async (req, res) => {
 
   console.log("USERS", USERS);
 
-  res.send(`Registered as ${req.body.name} with email ${req.body.email} `);
+  return res.send(
+    `Registered as ${req.body.name} with email ${req.body.email} `
+  );
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   if (req.body.email === req.session.email)
-    res.status(400).send(`Already logged in as ${req.body.email}`);
-
+    return res.status(400).send(`Already logged in as ${req.body.email}`);
+  console.log("NEW LOGING");
   const user = USERS.get(req.body.email);
-  if (!user)
-    res.status(401).send(`No such user exists with email ${req.body.email}`);
+  console.log(user);
+  console.log("!user", !user);
+  if (!user) {
+    return res
+      .status(401)
+      .send(`No such user exists with email ${req.body.email}`);
+  }
 
+  console.log("USER EXISTS");
   //TODO: Check password is the same
+  const isCorrectPassword = await bcrypt.compare(
+    req.body.password,
+    user.password
+  );
+  if (!isCorrectPassword)
+    return res.status(400).send(`email/password is incorrect`);
+  // IMPORTANT NOTE: It not good practice so send a message saying that specifically the password is incorrect - but here we are doing so more for testing/demo purposes
+  // In an actual application you would be as vague as possible - not saying if email exists or not etc.!
+  console.log("PASSWORD MATCHED");
   req.session.email = user.email;
 
-  res.send(`Authed as ${user.name}`);
+  return res.send(`Authed as ${user.name}`);
 });
+
+// IMPORTANT NOTE: res.send() doesn't exit the function - so needed return (return res.send() is return undefined)
+// Other ways would be use next() - to move to next middleware
+// Or use res.end() - to stop it completely but not move to the next middleware
+// Here I just used return to keep it simple
+// https://www.geeksforgeeks.org/how-to-exit-after-res-send-in-express-js/
 
 // TODO: Add an authorised route to get all info for dashboard
 
