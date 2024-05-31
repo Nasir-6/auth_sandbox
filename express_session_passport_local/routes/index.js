@@ -1,24 +1,49 @@
 // const router = require("express").Router();
 import { Router } from "express";
 const router = Router();
+import bcrypt from "bcrypt";
 
 import passport from "passport";
-import { validPassword, genPassword } from "../lib/passwordUtils.js";
+
+// NEED TO IMPORT THE PASSPORT CONFIG!!!
+import "../config/passport.js";
+
+import { isValidPassword } from "../lib/passwordUtils.js";
 import connection from "../config/database.js";
 const User = connection.models.User;
 
 /**
  * -------------- POST ROUTES ----------------
+ * i.e the functions when forms are submitted!!!
  */
 
-// TODO
-router.post("/login", (req, res, next) => {});
+router.post(
+  "/login",
+  passport.authenticate("local", {
+    successRedirect: "/login-success",
+    failureRedirect: "/login-failure",
+  })
+);
 
-// TODO
-router.post("/register", (req, res, next) => {});
+router.post("/register", async (req, res, next) => {
+  console.log("req.body", req.body);
+  console.log("req.body.pw", req.body.pw);
+  const hashedPassword = await bcrypt.hash(req.body.pw, 10);
+
+  const newUser = new User({
+    username: req.body.uname,
+    hashedPassword: hashedPassword,
+  });
+
+  newUser.save().then((user) => console.log("user", user));
+
+  res.redirect("/login");
+});
 
 /**
  * -------------- GET ROUTES ----------------
+ * These are the HTML forms - notice how the form has method and action
+ * This links to the post methods above!
  */
 
 router.get("/", (req, res, next) => {
@@ -29,8 +54,8 @@ router.get("/", (req, res, next) => {
 router.get("/login", (req, res, next) => {
   const form =
     '<h1>Login Page</h1><form method="POST" action="/login">\
-    Enter Username:<br><input type="text" name="username">\
-    <br>Enter Password:<br><input type="password" name="password">\
+    Enter Username:<br><input type="text" name="uname">\
+    <br>Enter Password:<br><input type="password" name="pw">\
     <br><br><input type="submit" value="Submit"></form>';
 
   res.send(form);
@@ -40,8 +65,8 @@ router.get("/login", (req, res, next) => {
 router.get("/register", (req, res, next) => {
   const form =
     '<h1>Register Page</h1><form method="post" action="register">\
-                    Enter Username:<br><input type="text" name="username">\
-                    <br>Enter Password:<br><input type="password" name="password">\
+                    Enter Username:<br><input type="text" name="uname">\
+                    <br>Enter Password:<br><input type="password" name="pw">\
                     <br><br><input type="submit" value="Submit"></form>';
 
   res.send(form);

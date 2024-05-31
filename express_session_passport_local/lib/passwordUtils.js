@@ -1,8 +1,6 @@
-// const crypto = require("crypto"); // TODO: replace with bcrypt
+import bcrypt from "bcrypt";
 
-// TODO
-export function validPassword(password, hash, salt) {}
-export function genPassword(password) {}
-
-// module.exports.validPassword = validPassword;
-// module.exports.genPassword = genPassword;
+export async function isValidPassword(password, hashedPassword) {
+  const isValid = await bcrypt.compare(password, hashedPassword);
+  return isValid;
+}
