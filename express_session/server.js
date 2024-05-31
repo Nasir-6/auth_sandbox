@@ -18,7 +18,7 @@ app.use(
     resave: false, // Do we want to resave session vars if nothing changed - no
     saveUninitialized: false, // Do we want to save an empty value when there is no session?
     cookie: {
-      // SameSite: "none", // DON'T INCLUDE sameSite: "none" prevents express cookies from being saved unless secure is set - but then need https - which isn't on dev!!!
+      sameSite: "lax", // DON'T INCLUDE sameSite: "none" prevents express cookies from being saved unless secure is set - but then need https - which isn't on dev!!!
       // https://stackoverflow.com/questions/76354210/why-is-my-express-session-cookie-being-sent-by-api-but-not-picked-up-in-browser
       // TODO: Some reading - https://web.dev/articles/samesite-cookies-explained
       // I think default value of sameSite is lax if not set!
@@ -57,10 +57,14 @@ app.post("/register", async (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
+  let user = USERS.get(req.session.email);
+  if (user)
+    return res.status(400).send(`Already have a session as ${user.name}`);
+
   if (req.body.email === req.session.email)
     return res.status(400).send(`Already logged in as ${req.body.email}`);
   console.log("NEW LOGING");
-  const user = USERS.get(req.body.email);
+  user = USERS.get(req.body.email);
   console.log(user);
   console.log("!user", !user);
   if (!user) {
@@ -92,6 +96,17 @@ app.post("/login", async (req, res) => {
 // https://www.geeksforgeeks.org/how-to-exit-after-res-send-in-express-js/
 
 // TODO: Add an authorised route to get all info for dashboard
+app.get("/dashboard", async (req, res) => {
+  const user = USERS.get(req.session.email);
+  console.log(user);
+  if (!user) {
+    return res.status(401).send(`Please login (or register first)`);
+  }
+
+  return res.send(
+    `Authed as ${user.name}\n email: ${user.email}\n password: ${user.password} `
+  );
+});
 
 // TODO: Add logout - remove cookie!!
 

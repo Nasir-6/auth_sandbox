@@ -1,24 +1,12 @@
-const adminBtn = document.getElementById("admin-btn");
-const userBtn = document.getElementById("user-btn");
-const getAdminDataBtn = document.getElementById("admin-data-btn");
+const logoutBtn = document.getElementById("logout-btn");
 const resultElem = document.getElementById("result");
 
-adminBtn.addEventListener("click", function () {
-  login("admin");
-});
-
-userBtn.addEventListener("click", function () {
-  login("user");
-});
-
-function login(username) {
-  fetch("http://localhost:3000/login", {
-    method: "POST",
+async function dashboard() {
+  console.log("document.cookie", document.cookie);
+  console.log("FETCHING");
+  await fetch("http://localhost:3000/dashboard", {
+    method: "GET",
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ username }),
   })
     .then((res) => res.text())
     .then((text) => {
@@ -26,16 +14,23 @@ function login(username) {
     });
 }
 
-getAdminDataBtn.addEventListener("click", function () {
-  fetch("http://localhost:3000/adminData", {
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((res) => res.text())
-    .then((text) => {
-      console.log("text", text);
-      resultElem.textContent = text;
-    });
-});
+// dashboard();
+
+logoutBtn.addEventListener(
+  "click",
+  dashboard()
+
+  // function () {
+  //   fetch("http://localhost:3000/logout", {
+  //     credentials: "include",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //   })
+  //     .then((res) => res.text())
+  //     .then((text) => {
+  //       console.log("text", text);
+  //       resultElem.textContent = text;
+  //     });
+  // }
+);
