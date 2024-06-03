@@ -17,6 +17,7 @@ const connection = mongoose.createConnection(process.env.DB_STRING, {
 const UserSchema = new mongoose.Schema({
   username: String,
   hashedPassword: String,
+  isAdmin: Boolean,
 });
 
 const User = connection.model("User", UserSchema);

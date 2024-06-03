@@ -8,8 +8,9 @@ import passport from "passport";
 // NEED TO IMPORT THE PASSPORT CONFIG!!!
 import "../config/passport.js";
 
-import { isValidPassword } from "../lib/passwordUtils.js";
 import connection from "../config/database.js";
+import isAuth from "../middleware/isAuth.js";
+import isAdmin from "../middleware/isAdmin.js";
 const User = connection.models.User;
 
 /**
@@ -26,13 +27,12 @@ router.post(
 );
 
 router.post("/register", async (req, res, next) => {
-  console.log("req.body", req.body);
-  console.log("req.body.pw", req.body.pw);
   const hashedPassword = await bcrypt.hash(req.body.pw, 10);
 
   const newUser = new User({
     username: req.body.uname,
     hashedPassword: hashedPassword,
+    isAdmin: true,
   });
 
   newUser.save().then((user) => console.log("user", user));
@@ -52,6 +52,7 @@ router.get("/", (req, res, next) => {
 
 // When you visit http://localhost:3000/login, you will see "Login Page"
 router.get("/login", (req, res, next) => {
+  // !Important note: Notice the name for each input - "uname"/"pw" - these are the body names we need to use in the server!! - this was done to make it clear!!
   const form =
     '<h1>Login Page</h1><form method="POST" action="/login">\
     Enter Username:<br><input type="text" name="uname">\
@@ -72,34 +73,41 @@ router.get("/register", (req, res, next) => {
   res.send(form);
 });
 
-/**
- * Lookup how to authenticate users on routes with Local Strategy
- * Google Search: "How to use Express Passport Local Strategy"
- *
- * Also, look up what behaviour express session has without a maxage set
- */
-router.get("/protected-route", (req, res, next) => {
-  // This is how you check if a user is authenticated and protect a route.  You could turn this into a custom middleware to make it less redundant
-  if (req.isAuthenticated()) {
-    res.send(
-      '<h1>You are authenticated</h1><p><a href="/logout">Logout and reload</a></p>'
-    );
-  } else {
-    res.send(
-      '<h1>You are not authenticated</h1><p><a href="/login">Login</a></p>'
-    );
-  }
+// Use custom isAuth middleware - to check first
+router.get("/protected-route", isAuth, (req, res, next) => {
+  res.send(
+    '<h1>You are authenticated</h1><p><a href="/logout">Logout and reload</a></p>'
+  );
 });
 
-// Visiting this route logs the user out
+router.get("/admin-route", isAdmin, (req, res, next) => {
+  res.send(
+    '<h1>You are authenticated as an ADMIN!</h1><p><a href="/logout">Logout and reload</a></p>'
+  );
+});
+
+// Visiting this route logs the user out - new change!!!
+// https://stackoverflow.com/questions/72336177/error-reqlogout-requires-a-callback-function
 router.get("/logout", (req, res, next) => {
-  req.logout();
-  res.redirect("/protected-route");
+  // OLD METHOD - not working anymore !!!
+  //   req.logout(); // .logout is attached method by passport once logged in!
+  //   res.redirect("/protected-route");
+
+  // New updated method!!
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/protected-route");
+  });
 });
 
 router.get("/login-success", (req, res, next) => {
   res.send(
-    '<p>You successfully logged in. --> <a href="/protected-route">Go to protected route</a></p>'
+    `<p>You successfully logged in. --> <a href="/protected-route">Go to protected route</a></p>\
+    <br>
+    OR <a href="/admin-route">Go to Admin route</a>
+    `
   );
 });
 
