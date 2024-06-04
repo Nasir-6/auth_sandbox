@@ -1,5 +1,3 @@
-// nasirislam
-// VGdwXl1VksPyRU5r MONGO.DB PWD
 import express from "express";
 import session from "express-session";
 import mongoose from "mongoose";
