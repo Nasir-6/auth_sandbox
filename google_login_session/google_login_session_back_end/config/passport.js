@@ -49,7 +49,7 @@ const verifyCb = (accessToken, refreshToken, profile, done) => {
 const options = {
   clientID: process.env["GOOGLE_CLIENT_ID"],
   clientSecret: process.env["GOOGLE_CLIENT_SECRET"],
-  callbackURL: "/oauth2/redirect/google",
+  callbackURL: "/oauth2/redirect/google", // This is the url google redirects to in our app - setup a GET req to deal with this!
   scope: ["profile"],
   state: true,
 };

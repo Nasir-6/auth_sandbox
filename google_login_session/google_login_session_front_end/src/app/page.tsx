@@ -10,36 +10,34 @@ export default function Home() {
 
   const handleGoogleLogin = async () => {
     console.log("CLICKED GOOGLE");
-    window.open("http://localhost:8080/login/federated/google", "_self");
+    window.open("http://localhost:8080/login/federated/google", "_self"); // Need to access backend login url - which redirects to google login
   };
 
   const logout = () => {
     fetch("http://localhost:8080/logout", {
-      method: "POST",
+      method: "POST", // Use POST To avoid accidental logout!
       credentials: "include",
     })
       .then((res) => {
         if (res.ok) {
-          console.log("res", res);
           window.location.reload();
         }
       })
       .catch((err) => console.error("err", err));
   };
 
+  // UseEffect to grab user (saved in session) using attached cookie
   useEffect(() => {
     fetch("http://localhost:8080/get-logged-in-user", {
       credentials: "include",
     })
       .then((res) => {
-        console.log("res", res);
         if (res.ok) {
           return res.json();
         }
         throw new Error("NO LOGGED IN USER FOUND");
       })
       .then((json) => {
-        console.log("json", json);
         const user = json.user;
         setUser(user);
       })

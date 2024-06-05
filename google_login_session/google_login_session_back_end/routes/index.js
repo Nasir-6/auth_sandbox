@@ -7,6 +7,8 @@ import passport from "passport";
 // NEED TO IMPORT THE PASSPORT CONFIG!!!
 import "../config/passport.js";
 
+const CLIENT_URL = "http://localhost:3000";
+
 router.get("/test", (req, res, next) => {
   console.log("TEST ROUTE");
   console.log("req.isAuthenticated()", req.isAuthenticated());
@@ -27,22 +29,6 @@ router.get("/test", (req, res, next) => {
  */
 router.get("/login/federated/google", passport.authenticate("google"));
 
-const CLIENT_URL = "http://localhost:3000";
-
-router.get("/get-logged-in-user", (req, res, next) => {
-  if (req.user) {
-    res.status(200).json({ success: true, user: req.user });
-  } else {
-    res.status(400).json({ success: false, msg: "No logged in user" });
-  }
-});
-
-router.get("/login-fail", (req, res, next) => {
-  res.status(401).json({
-    success: false,
-    msg: "Google login failed",
-  });
-});
 /*
     This route completes the authentication sequence when Google redirects the
     user back to the application.  When a new user signs in, a user account is
@@ -52,10 +38,26 @@ router.get("/login-fail", (req, res, next) => {
 router.get(
   "/oauth2/redirect/google",
   passport.authenticate("google", {
-    successReturnToOrRedirect: CLIENT_URL,
-    failureRedirect: "/login-fail",
+    successReturnToOrRedirect: CLIENT_URL, // Once Authenticated we want to go back to the client
+    failureRedirect: "/login-fail", // See route below!
   })
 );
+//
+
+router.get("/login-fail", (req, res, next) => {
+  res.status(401).json({
+    success: false,
+    msg: "Google login failed",
+  });
+});
+
+router.get("/get-logged-in-user", (req, res, next) => {
+  if (req.user) {
+    res.status(200).json({ success: true, user: req.user });
+  } else {
+    res.status(400).json({ success: false, msg: "No logged in user" });
+  }
+});
 
 // Making a post req to this route logs the user out - new change!!!
 // https://stackoverflow.com/questions/72336177/error-reqlogout-requires-a-callback-function

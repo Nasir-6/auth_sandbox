@@ -18,6 +18,8 @@ const UserSchema = new mongoose.Schema({
   username: String,
 });
 
+// This Schema is for storing all OAuth2 accounts
+// Do this so can use other providers e.g facebook etc.!!
 const FederatedUserSchema = new mongoose.Schema({
   user: {
     type: mongoose.SchemaTypes.ObjectId,
